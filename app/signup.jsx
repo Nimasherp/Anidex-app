@@ -1,0 +1,112 @@
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+import { supabase } from "../lib/supabase"; // your supabase client
+
+export default function SignUpScreen() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const router = useRouter();
+
+  const onSubmit = async () => {
+    setError(null);
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      // Optional: you can auto-login or redirect to signin
+      router.replace("/signin");
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Create Account</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+
+      {error && <Text style={styles.error}>{error}</Text>}
+
+      <TouchableOpacity style={styles.button} onPress={onSubmit}>
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.footerText}>
+        Already have an account?{" "}
+        <Text style={styles.link} onPress={() => router.push("/signin")}>
+          Sign in
+        </Text>
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "#f0f4ff",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+    color: "#333",
+  },
+  input: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  button: {
+    backgroundColor: "#357AFF",
+    padding: 15,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  error: {
+    color: "red",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  footerText: {
+    textAlign: "center",
+    color: "#555",
+  },
+  link: {
+    color: "#357AFF",
+    fontWeight: "bold",
+  },
+});

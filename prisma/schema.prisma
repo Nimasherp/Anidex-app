@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  passwordHash String
+  createdAt    DateTime         @default(now())
+  sessions     Session[]
+  collections  UserCollection[]
+}
+
+model UserCollection {
+  id        String   @id @default(cuid())
+  userId    String
+  taxonId   Int
+  photoUrl  String
+  latitude  Float
+  longitude Float
+  captureAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, taxonId])
+}
+
+model Session {
+  id      String   @id @default(cuid())
+  userId  String
+  expires DateTime
+  user    User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model vernacular_names {
+  taxonid         Int     @id
+  vernacular_name String
+  language        String
+  country         String?
+}
