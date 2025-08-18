@@ -37,10 +37,6 @@
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "extra": {
-      "SUPABASE_URL": "https://yaxflalqkforhagxzfiq.supabase.co",
-      "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGZsYWxxa2ZvcmhhZ3h6ZmlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzgyNzksImV4cCI6MjA3MTAxNDI3OX0.iP5mBYs7wvjDbQbjD8UprGPyLBUUaAiZor63besraXM"
     }
   }
 }

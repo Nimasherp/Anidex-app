@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, Animated, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import { useSession } from "../hooks/useSession";
+import React, { useEffect, useState } from "react"
+import { View, Text, Image, Animated, StyleSheet } from "react-native"
+import { useRouter } from "expo-router"
+import { useSession } from "../hooks/useSession"
+
+// In this version of anidex I decided to separate The intro screen to the main menu, this decision might stop at some point
 
 export default function IntroScreen() {
-  const { session, loading } = useSession();
-  const router = useRouter();
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const { session, loading } = useSession()
+  const router = useRouter()
+  const [fadeAnim] = useState(new Animated.Value(0))
 
   useEffect(() => {
-    if (loading) return; // wait for session to load
+    if (loading) return
 
     Animated.sequence([
       Animated.timing(fadeAnim, {
@@ -26,12 +28,12 @@ export default function IntroScreen() {
     ]).start(() => {
       // Navigate based on session
       if (session) {
-        router.replace("/main");
+        router.replace("/main")
       } else {
-        router.replace("/signin");
+        router.replace("/signin")
       }
-    });
-  }, [fadeAnim, router, session, loading]);
+    })
+  }, [fadeAnim, router, session, loading])
 
   return (
     <View style={styles.container}>
@@ -43,7 +45,7 @@ export default function IntroScreen() {
         />
       </Animated.View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -64,4 +66,4 @@ const styles = StyleSheet.create({
     height: 120,
     resizeMode: "contain",
   },
-});
+})

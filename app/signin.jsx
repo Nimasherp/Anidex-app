@@ -1,27 +1,27 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import { supabase } from "../lib/supabase"; // your supabase client
+import React, { useState } from "react"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native"
+import { useRouter } from "expo-router"
+import { supabase } from "../lib/supabase"
 
 export default function SignInScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const router = useRouter();
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState(null)
+  const router = useRouter()
 
   const onSubmit = async () => {
-    setError(null);
+    setError(null) 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    });
+    }) 
 
     if (error) {
-      setError(error.message);
+      setError(error.message) 
     } else if (data.session) {
-      router.replace("/main"); // redirect to main page on success
+      router.replace("/main")  // redirect to main page on success
     }
-  };
+  } 
 
   return (
     <View style={styles.container}>
@@ -57,7 +57,7 @@ export default function SignInScreen() {
         </Text>
       </Text>
     </View>
-  );
+  ) 
 }
 
 const styles = StyleSheet.create({
@@ -107,4 +107,4 @@ const styles = StyleSheet.create({
     color: "#357AFF",
     fontWeight: "bold",
   },
-});
+}) 
