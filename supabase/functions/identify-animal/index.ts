@@ -1,8 +1,14 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+
 
 serve(async (req : Request) => {
   console.log("hello")
   try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")! 
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
     const { imageUrl } = await req.json()
 
     if (!imageUrl) {
@@ -50,8 +56,18 @@ serve(async (req : Request) => {
     const visionResult = await visionResponse.json()
     const animalIdentification = visionResult.choices[0]?.message?.content
 
+    // Now let's search in our database :
+
+    const { data, error } = await supabase
+      .from("vernacular_names")
+      .select("*")
+      .eq("vernacularName", animalIdentification.toLowerCase())
+      .maybeSingle()
+
+    if (error) throw error
+
     return new Response(
-      JSON.stringify({ identification: animalIdentification, found: true }),
+      JSON.stringify({ identification: animalIdentification, found: data && data.length > 0 , animal: data}),
       { headers: { "Content-Type": "application/json" } }
     )
   } catch (err) {

@@ -83,11 +83,13 @@ export default function MainComponent() {
       })
       if (error) throw error
       setIdentifiedAnimal(data)
+      console.log(data.animal)
     } catch (err) {
       console.error("Identify error:", err.message)
       setError("Failed to identify animal")
     }
   }
+  
 
 
 
@@ -121,7 +123,7 @@ export default function MainComponent() {
                 <View style={styles.animalCard}>
                 <Text style={styles.animalName}>{identifiedAnimal.identification}</Text>
                 {identifiedAnimal.found && (
-                    <TouchableOpacity style={styles.captureButton} > 
+                    <TouchableOpacity style={styles.captureButton} >
                     <Text style={styles.captureButtonText}>Add to Collection</Text>
                     </TouchableOpacity>
                 )}
