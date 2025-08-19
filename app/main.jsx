@@ -32,7 +32,7 @@ export default function MainComponent() {
       if (!result.cancelled) {
         const selectedUri = result.assets[0].uri
         setFile(selectedUri)
-        setImage(await uploadImage(selectedUri))
+        await uploadImage(selectedUri)
       }
     } catch (err) {
       console.error("Pick image error:", err)
@@ -64,7 +64,8 @@ export default function MainComponent() {
         .from("ImageCollections")
         .getPublicUrl(`public/${filepath}`) 
       
-      return publicData.publicUrl 
+      setImage(publicData.publicUrl)
+      identifyAnimal(publicData.publicUrl)
     } catch (err) {
       console.error("Upload error:", err.message) 
       throw err 
@@ -72,9 +73,23 @@ export default function MainComponent() {
       setLoading(false)
     }
   } 
-  
-  
-  
+
+  const identifyAnimal = async (imageUrl) => {
+    
+    try {
+      // identify-animal is an edge function from supabase
+      const { data, error } = await supabase.functions.invoke("identify-animal", {
+        body: { imageUrl },
+      })
+      if (error) throw error
+      setIdentifiedAnimal(data)
+    } catch (err) {
+      console.error("Identify error:", err.message)
+      setError("Failed to identify animal")
+    }
+  }
+
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#DBEAFE"}}>
@@ -102,16 +117,16 @@ export default function MainComponent() {
             <View style={styles.imageContainer}>
             <Image source={{ uri: image }} style={styles.image} />
 
-            {/* {identifiedAnimal && (
+            {identifiedAnimal && (
                 <View style={styles.animalCard}>
                 <Text style={styles.animalName}>{identifiedAnimal.identification}</Text>
                 {identifiedAnimal.found && (
-                    <TouchableOpacity style={styles.captureButton} onPress={captureAnimal}>
+                    <TouchableOpacity style={styles.captureButton} > 
                     <Text style={styles.captureButtonText}>Add to Collection</Text>
                     </TouchableOpacity>
                 )}
                 </View>
-            )} */}
+            )}
 
             <TouchableOpacity
                 style={styles.resetButton}
