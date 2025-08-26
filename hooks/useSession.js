@@ -14,37 +14,47 @@ export const SessionProvider = ({ children }) => {
 
   useEffect(() => {
     const init = async () => {
-      //restore sesion from SecureStore
+      setLoading(true) 
+  
       const storedSession = await SecureStore.getItemAsync('supabaseSession') 
       if (storedSession) {
         const parsed = JSON.parse(storedSession) 
-        setSession(parsed) 
-        //Restore Supabase session
-        await supabase.auth.setSession(parsed.access_token) 
+  
+        const { error } = await supabase.auth.setSession({
+          access_token: parsed.access_token,
+          refresh_token: parsed.refresh_token,
+        }) 
+  
+        if (!error) {
+          setSession(parsed) 
+        } else {
+          await SecureStore.deleteItemAsync('supabaseSession') 
+        }
       } else {
-        // if not, get session from Supabase
         const { data } = await supabase.auth.getSession() 
         if (data.session) {
           setSession(data.session) 
           await SecureStore.setItemAsync('supabaseSession', JSON.stringify(data.session)) 
         }
       }
+  
       setLoading(false) 
     } 
+  
     init() 
-
-    // Listen for auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) =>{
+  
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session) 
       if (session) {
-        await SecureStore.setItemAsync('supabaseSession',JSON.stringify(session)) 
+        await SecureStore.setItemAsync('supabaseSession', JSON.stringify(session)) 
       } else {
         await SecureStore.deleteItemAsync('supabaseSession') 
       }
     }) 
-
+  
     return () => listener.subscription.unsubscribe() 
   }, []) 
+  
 
   const signOut = async ()=>{
     await supabase.auth.signOut() 

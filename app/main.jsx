@@ -6,9 +6,12 @@ import { supabase } from "../lib/supabase" // what will link us to our database 
 import { useSession } from "../hooks/useSession"
 import * as FileSystem from "expo-file-system"
 
+
 export default function MainComponent() {
   const { session, loading: sessionLoading, signOut } = useSession()
   const user = session?.user || null
+  const token = session?.access_token || null
+
 
   if(!user) {
     throw new Error("User not signed in !")
@@ -80,16 +83,44 @@ export default function MainComponent() {
       // identify-animal is an edge function from supabase
       const { data, error } = await supabase.functions.invoke("identify-animal", {
         body: { imageUrl },
+        headers: { Authorization: `Bearer ${token}` }
       })
       if (error) throw error
       setIdentifiedAnimal(data)
-      console.log(data.animal)
     } catch (err) {
       console.error("Identify error:", err.message)
       setError("Failed to identify animal")
     }
   }
   
+  const captureAnimal = async () => {
+    if (!identifiedAnimal?.animal?.taxonid || !image) return
+  
+    try {
+      // supabase Edge Function "capture-animal"
+      const { data, error } = await supabase.functions.invoke("capture-animal", {
+        body: {
+          animalId: identifiedAnimal.animal.taxonid,
+          photoUrl: image,
+          captureLocation: { x: 0, y: 0 },
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (error) throw error
+
+  
+      if (data?.success) {
+        Alert.alert("Success!", "Animal added to your collection")
+      } else {
+        Alert.alert("Error", "Something went wrong")
+      }
+    } catch (err) {
+      console.error(err)
+      Alert.alert("Failed", "Failed to capture animal")
+    }
+  }
 
 
 
@@ -123,7 +154,7 @@ export default function MainComponent() {
                 <View style={styles.animalCard}>
                 <Text style={styles.animalName}>{identifiedAnimal.identification}</Text>
                 {identifiedAnimal.found && (
-                    <TouchableOpacity style={styles.captureButton} >
+                    <TouchableOpacity style={styles.captureButton} onPress={captureAnimal} >
                     <Text style={styles.captureButtonText}>Add to Collection</Text>
                     </TouchableOpacity>
                 )}
